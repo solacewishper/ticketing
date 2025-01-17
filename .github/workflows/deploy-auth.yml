@@ -6,16 +6,66 @@ on:
       - master
     paths:
       - 'auth/**'
-  workflow_dispatch:  # This allows manual triggering from the GitHub UI
+  workflow_dispatch:
+
+env:
+  SHA: $(git rev-parse HEAD)
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+
     steps:
-      - uses: actions/checkout@v2
-      - run: cd auth && docker build -t sayandafadar/auth .
-      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        run: |
+          cd auth || exit 1
+          docker build -t sayandafadar/auth:latest -t sayandafadar/auth:${{ env.SHA }} . || exit 1
+
+      - name: Docker Login
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker push sayandafadar/auth
+
+      - name: Push Docker Image
+        run: |
+          docker push sayandafadar/auth:latest
+          docker push sayandafadar/auth:${{ env.SHA }}
+
+      - name: Set Identity Provider
+        uses: "google-github-actions/auth@v0"
+        with:
+          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/my-repo"
+          service_account: "gh-deployer@ticketing-448114.iam.gserviceaccount.com"
+
+      - name: Set Project
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ticketing-448114
+
+      - name: Auth
+        run: gcloud --quiet auth configure-docker
+
+      - name: Get Credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: microservice-cluster
+          location: asia-south2-a
+
+      - name: Apply MongoDB Deployment
+        run: kubectl apply -f infra/k8s/auth-mongo-depl.yml
+
+      - name: Apply Auth Deployment
+        run: |
+          kubectl apply -f infra/k8s/auth-depl.yml
+          kubectl set image deployments/auth-depl auth=sayandafadar/auth:${{ env.SHA }}
+
+      - name: Verify Deployments
+        run: |
+          kubectl get pods
+          kubectl get pvc
