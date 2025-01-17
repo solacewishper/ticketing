@@ -1,0 +1,41 @@
+name: deploy-manifests
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "infra/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Identity Provider
+        uses: "google-github-actions/auth@v0"
+        with:
+          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/my-repo"
+          service_account: "gh-deployer@ticketing-448114.iam.gserviceaccount.com"
+
+      - name: Set Project
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ticketing-448114
+
+      - name: Get Credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: microservice-cluster
+          location: asia-south2-a
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f infra/k8s
+          kubectl apply -f infra/k8s-prod

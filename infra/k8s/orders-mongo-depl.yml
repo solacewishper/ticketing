@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orders-mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: standard
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,6 +27,13 @@ spec:
       containers:
         - name: orders-mongo
           image: mongo
+          volumeMounts:
+            - mountPath: /data/db
+              name: orders-mongo-storage
+      volumes:
+        - name: orders-mongo-storage
+          persistentVolumeClaim:
+            claimName: orders-mongo-pvc
 ---
 apiVersion: v1
 kind: Service
