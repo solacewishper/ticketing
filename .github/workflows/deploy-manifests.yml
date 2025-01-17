@@ -19,11 +19,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - id: "auth"
-        name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
         with:
-          project_id: "ticketing-448114"
-          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/github-provider"
+          service_account: "gh-deployer@ticketing-448114.iam.gserviceaccount.com"
+          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
 
       - id: "get-credentials"
         uses: "google-github-actions/get-gke-credentials@v2"
