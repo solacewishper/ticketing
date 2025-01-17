@@ -4,7 +4,6 @@ import { natsWrapper } from "./nats-wrapper";
 import { TicketCreatedListener } from "./events/listeners/ticket-created-listener";
 import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listener";
 import { ExpirationCompleteListerner } from "./events/listeners/expiration-complete-listener";
-import { Listener } from "@sdgittickets/common";
 import { PaymentCreatedListener } from "./events/listeners/payment-created-listener";
 
 const start = async () => {
