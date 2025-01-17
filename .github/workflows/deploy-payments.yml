@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "payments/**"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,22 +16,27 @@ jobs:
       id-token: "write"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
       - run: cd payments && docker build -t sayandafadar/payments .
+
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
       - run: docker push sayandafadar/payments
-      - uses: "google-github-actions/auth@v0"
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
         with:
-          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/my-repo"
           service_account: "gh-deployer@ticketing-448114.iam.gserviceaccount.com"
-      - uses: google-github-actions/setup-gcloud@v0
+          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
+
+      - id: "get-credentials"
+        uses: "google-github-actions/get-gke-credentials@v2"
         with:
-          project_id: ticketing-448114
-      - uses: google-github-actions/get-gke-credentials@v0
-        with:
-          cluster_name: microservice-cluster
-          location: asia-south2-a
+          cluster_name: "microservice-cluster"
+          location: "asia-south2-a"
+
       - run: kubectl rollout restart deployment payments-depl

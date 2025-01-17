@@ -18,24 +18,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set Identity Provider
-        uses: "google-github-actions/auth@v0"
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
         with:
-          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/my-repo"
-          service_account: "gh-deployer@ticketing-448114.iam.gserviceaccount.com"
+          project_id: "ticketing-448114"
+          workload_identity_provider: "projects/980984347261/locations/global/workloadIdentityPools/github/providers/github-provider"
 
-      - name: Set Project
-        uses: google-github-actions/setup-gcloud@v0
+      - id: "get-credentials"
+        uses: "google-github-actions/get-gke-credentials@v2"
         with:
-          project_id: ticketing-448114
+          cluster_name: "microservice-cluster"
+          location: "asia-south2-a"
 
-      - name: Get Credentials
-        uses: google-github-actions/get-gke-credentials@v0
-        with:
-          cluster_name: microservice-cluster
-          location: asia-south2-a
-
-      - name: Apply Kubernetes manifests
+      - name: "Deploy manifests"
         run: |
           kubectl apply -f infra/k8s
           kubectl apply -f infra/k8s-prod
