@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'auth/**'
+  workflow_dispatch:  # This allows manual triggering from the GitHub UI
 
 jobs:
   build:
