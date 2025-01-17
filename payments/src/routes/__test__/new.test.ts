@@ -89,4 +89,11 @@ it("returns a 201 with valid inputs", async () => {
   expect(chargeOptions.source).toEqual("tok_visa");
   expect(chargeOptions.amount).toEqual(20 * 100);
   expect(chargeOptions.currency).toEqual("usd");
+
+  // Verify the payment was saved
+  const payment = await Payment.findOne({
+    orderId: order.id,
+    stripeId: "mock_charge_id",
+  });
+  expect(payment).not.toBeNull();
 });
