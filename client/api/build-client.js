@@ -1,19 +1,18 @@
-import axios from "axios";
-
 const buildClient = ({ req }) => {
   if (typeof window === "undefined") {
-    // We are on the server!
+    // Server side
     return axios.create({
       baseURL:
         "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local",
-      headers: req.headers,
+      headers: {
+        ...req.headers,
+        Host: "multik8s.site", // Add this line
+      },
     });
   } else {
-    // We are on the browser!
+    // Browser side
     return axios.create({
       baseURL: "https://multik8s.site",
     });
   }
 };
-
-export default buildClient;
