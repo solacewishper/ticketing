@@ -16,8 +16,6 @@ spec:
         - name: orders
           image: sayandafadar/orders
           env:
-            - name: NODE_ENV
-              value: "production"
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:

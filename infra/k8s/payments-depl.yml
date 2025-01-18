@@ -16,8 +16,6 @@ spec:
         - name: payments
           image: sayandafadar/payments
           env:
-            - name: NODE_ENV
-              value: "production"
             - name: NATS_CLIENT_ID
               valueFrom:
                 fieldRef:
