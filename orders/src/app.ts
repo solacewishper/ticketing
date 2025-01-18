@@ -15,7 +15,8 @@ app.use(
   cookieSession({
     signed: false,
     secure: true,
-    domain: ".multik8s.site",
+    domain:
+      process.env.NODE_ENV === "production" ? ".multik8s.site" : undefined,
   }),
 );
 app.use(currentUser);

@@ -16,6 +16,8 @@ spec:
         - name: auth
           image: sayandafadar/auth
           env:
+            - name: NODE_ENV
+              value: "production"
             - name: MONGO_URI
               value: "mongodb://auth-mongo-srv:27017/auth"
             - name: JWT_KEY
@@ -23,6 +25,7 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+
 ---
 apiVersion: v1
 kind: Service
