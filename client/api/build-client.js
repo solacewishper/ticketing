@@ -12,7 +12,7 @@ const buildClient = ({ req }) => {
   } else {
     // Browser side
     return axios.create({
-      baseURL: "https://multik8s.site",
+      baseURL: "",
     });
   }
 };
