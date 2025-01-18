@@ -13,7 +13,7 @@ spec:
     - hosts:
         - multik8s.site
         - www.multik8s.site
-      secretName: multik8s-site
+      secretName: multik8s-site-tls
   ingressClassName: nginx
   rules:
     - host: multik8s.site
