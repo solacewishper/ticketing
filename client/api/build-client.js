@@ -5,7 +5,7 @@ export default ({ req }) => {
     // We are on the server
 
     return axios.create({
-      baseURL: "http://auth-srv:3000",
+      baseURL: "http://multik8s.site",
       headers: req.headers,
     });
   } else {
